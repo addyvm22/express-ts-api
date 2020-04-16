@@ -1,0 +1,32 @@
+
+
+GET http://localhost:7000/items/3
+
+
+
+GET http://localhost:7000/items
+
+
+
+
+POST http://localhost:7000/items/create HTTP/1.1
+content-type: application/json
+
+{
+    "item":{
+        "name": "misalPav5",
+        "price": 25,
+        "description": "Tikhat"        
+    }
+}
+
+POST http://localhost:7000/items/create HTTP/1.1
+content-type: application/json
+
+{
+    "item":{
+        "name": "misalPav",
+        "price": 25,
+        "description": "Tikhat"
+    }
+}
