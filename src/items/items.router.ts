@@ -4,9 +4,7 @@
 
 import express, { Request, Response } from "express";
 import * as ItemService from "./items.service";
-import { Item } from "./item.interface"
-import { Items } from "./items.interface"
-
+import {IItem} from '../models/item.model';
 
 /**
  * Router Definition
@@ -25,7 +23,7 @@ export const messageRouter = express.Router()
 itemsRouter.get("/", async (req: Request, res: Response) => {
 
     try {
-        const items: Items = await ItemService.findAll();
+        const items: IItem[] = await ItemService.findAll();
         res.status(200).send(items);
 
     } catch (e) {
@@ -38,7 +36,7 @@ itemsRouter.get("/", async (req: Request, res: Response) => {
 itemsRouter.get("/:id", async (req: Request, res: Response) => {
 
     try {
-        const item: Item = await ItemService.find(parseInt(req.params.id, 10));
+        const item: IItem = await ItemService.find(req.params.id);
 
         res.status(200).send(item);
 
@@ -51,11 +49,14 @@ itemsRouter.get("/:id", async (req: Request, res: Response) => {
 // POST items/
 itemsRouter.post("/create", async (req: Request, res: Response) => {
     try {
-        // console.log("Controller Creating....")
-        const item: Item = req.body.item;
-        const id = await ItemService.create(item);
-        res.status(200).json(id);
+        console.log("Controller Creating....")
+        const item: IItem = req.body.item;
 
+        ItemService.create(item).then((item:any)=>{
+            // console.log('then block in router', item)
+            if(item) res.status(200).json(item._id)
+            else res.status(200).send(item)
+        }); 
 
     } catch (e) {
         res.status(404).send(e.message);
@@ -64,12 +65,11 @@ itemsRouter.post("/create", async (req: Request, res: Response) => {
 });
 
 
-// PUT items/
-
-
+// PUT items
+//update an item
 itemsRouter.put("/", async (req: Request, res: Response) => {
     try {
-        const item: Item = req.body.item;
+        const item: IItem = req.body.item;
         await ItemService.update(item);
 
         res.sendStatus(200);
@@ -79,22 +79,23 @@ itemsRouter.put("/", async (req: Request, res: Response) => {
 });
 
 
-
 // DELETE items/:id
-itemsRouter.delete("/:id", async(req:Request, res:Response)=>{
-    try{
-        const id:number  = parseInt(req.params.id,10);
-        const item:Item = await ItemService.remove(id);
-
-        res.sendStatus(200);
-
-
-    }catch(e){
+// delete a record
+itemsRouter.delete("/:id", async (req: Request, res: Response) => {
+    try {
+        ItemService.remove(req.params.id)
+            .then((re) => {
+                res.status(200).send(re);
+            })
+            .catch((e) => {
+                res.status(500).send(e);
+            });
+    } catch (e) {
         res.status(500).send(e.message);
     }
-})
+});
 
-messageRouter.get("/gm", async(req:Request, res:Response)=>{
+messageRouter.get("/gm", async (req: Request, res: Response) => {
     res.status(200).send("Good Morning Mr Adwait!!!");
 });
 

@@ -10,10 +10,10 @@ import { itemsRouter } from "./items/items.router";
 import { messageRouter } from "./items/items.router";
 import { errorHandler } from "./middleware/error.middleware";
 import { notFoundHandler } from "./middleware/notFound.middleware"
-import { networkInterfaces } from "os";
+import mongooseConf from './models/mongoose.conf'
 
 dotenv.config();
-
+mongooseConf();
 
 /**
  * App Variables
@@ -33,6 +33,7 @@ const app = express();
 /**
  *  App Configuration
  */
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json());

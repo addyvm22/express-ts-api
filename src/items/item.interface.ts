@@ -1,5 +1,4 @@
 
-
 export interface Item {
     id: number;
     name:string;
@@ -8,3 +7,7 @@ export interface Item {
     image: string;
 }
 
+
+export interface ItemList{
+    [key: number] : Item;
+}

@@ -1,11 +1,10 @@
 
 
-GET http://localhost:7000/items/3
+GET http://localhost:7000/items/5eac7ba432c76bca3234f983
 
 ###
 
 GET http://localhost:7000/items
-
 
 
 ###
@@ -14,7 +13,7 @@ content-type: application/json
 
 {
     "item":{
-        "name": "misalPav5",
+        "name": "misalPav58",
         "price": 25,
         "description": "Tikhat"        
     }

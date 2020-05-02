@@ -1,41 +1,10 @@
 /**
  * Data Model Interfaces
  */
-import { Item } from "./item.interface"
-import { Items } from "./items.interface"
 
-
-
-/**
- * In-Memory Store
- */
-
-
-const items: Items = {
-    1: {
-        id: 1,
-        name: "Burger",
-        price: 5.99,
-        description: "Tasty",
-        image: "https://cdn.auth0.com/blog/whatabyte/burger-sm.png"
-    },
-
-    2: {
-        id: 2,
-        name: "Pizza",
-        price: 2.99,
-        description: "Cheesy",
-        image: "https://cdn.auth0.com/blog/whatabyte/pizza-sm.png"
-    },
-
-    3: {
-        id: 3,
-        name: "Tea",
-        price: 1.99,
-        description: "Informative",
-        image: "https://cdn.auth0.com/blog/whatabyte/tea-sm.png"
-    }
-};
+//Item is the mongoose model, IItem is the interface that represents the item object
+import Item, {IItem} from "../models/item.model" 
+const mongoose = require('mongoose');
 
 
 /**
@@ -43,59 +12,82 @@ const items: Items = {
  */
 
 
-export const findAll = async (): Promise<Items> => {
+export const findAll = async (): Promise<IItem[]> => {
+    console.log('Find all items');
+    const items = Item.find((err: any, items: any) => {
+        if (err) {
+            throw new Error(err);
+        } else {
+
+            return items;
+        }
+
+    })
     return items;
+
 };
 
 
 
-export const find = async (id: number): Promise<Item> => {
-    const record: Item = items[id];
+export const find = async (id: String): Promise<IItem> => {
 
-    if (record) {
-        return record;
-    }
+    let item:any = await Item.findOne({ "_id": mongoose.Types.ObjectId(id) }, (err, item) => {
+        if (err) {
+            throw new Error("No record found");
+        }
 
-    throw new Error("No record found");
+        return item;
+    });
+
+    return item;
+
+
 };
 
 
-export const create = async (newItem: Item): Promise<number> => {
-    // console.log("Creating..")
-    const id = new Date().valueOf();
-    items[id] = {
-        ...newItem,
-        id
-    }
-    return id;
+export const create = async (newItem: IItem): Promise<any> => {
 
+    return new Promise((resolve: any, reject: any) => {
+        console.log("Creating..")
+
+        Item.create(newItem, (err: any, it: any) => {
+            if (err) {
+                console.log("mongo db error", err)
+                reject(err);
+            }
+            console.log('created in service', it)
+            resolve(it);
+        });
+    });
 }
 
 
-export const update = async (updatedItem: Item): Promise<void> => {
-    if (items[updatedItem.id]) {
-        items[updatedItem.id] = updatedItem;
-        return;
-    }
 
-    throw new Error("No record found to update");
+//service to update item
+export const update = async (updatedItem: IItem): Promise<void> => {
+
+    Item.findByIdAndUpdate(updatedItem._id, updatedItem, (err:any, data:any)=>{
+        if (err){
+            throw new Error(err);    
+        } 
+    });
 };
 
 
+//Service to delete item
+export const remove = async (id: String): Promise<any> => {
+    // throw new Error('deliberately raised error');
+    return new Promise((resolve: any, reject: any) => {
 
-
-export const remove = async (id: number): Promise<Item> => {
-    // console.log("service remove")
-
-    if (items[id]) {
-        let deletedItem: Item = items[id]
-        delete items[id];
-        return deletedItem;
-    }
-
-    
-
-    throw new Error("No record by that id");
+        Item.deleteOne({ _id: mongoose.Types.ObjectId(id) })
+            .then((result: any) => {
+                resolve(result);
+            }).catch((err) => {
+                if (err) {
+                    reject(err);
+                }
+            });
+    })
 }
 
 
